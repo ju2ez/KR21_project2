@@ -16,3 +16,16 @@ class BNReasoner:
             self.bn = net
 
     # TODO: This is where your methods should go
+
+    def d_seperate(self, X, Y, Z):
+        """
+        Check if X is independent of Y given Z by using d-separation.
+        """
+        # implemented the important properties of d-separation
+        pass
+
+    def min_degree_heuristic(self,)
+
+
+
+
