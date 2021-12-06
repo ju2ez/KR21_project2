@@ -120,15 +120,16 @@ class BNReasoner:
         return ordered_vars
 
     def prune_network(self, Q, E):
-        node_pruned_network = self._node_pruning(Q, E)
+        node_pruned_network = self._node_pruning(self.bn, Q, E)
+        edge_pruned_network, updated_cpt = self._edge_pruning(node_pruned_network, Q, E)
 
-    def _node_pruning(self, Q: list, E: list):
+    def _node_pruning(self, net, Q: list, E: list):
         """
         Given a list of evidence Q, perform node pruning
         :param Q: query , E: evidence
         :return:
         """
-        net = deepcopy(self.bn)
+        net = deepcopy(net)
         QE = Q + E
 
         leaf_nodes = [node for node in net.get_all_variables()
@@ -136,18 +137,18 @@ class BNReasoner:
 
         prunable_nodes = [node for node in leaf_nodes if node not in QE]
 
-        pruned = [node for node in net.get_all_variables()
-                  if node not in prunable_nodes]
+        for node in prunable_nodes:
+            net.del_var(node)
 
-        return pruned
+        return net
 
-    def _edge_pruning(self, Q: list, E: list):
+    def _edge_pruning(self, net, Q: list, E: list):
         """
         Given a list of evidence Q, perform edge pruning
         :param Q: query, E: evidence
         :return:
         """
-        net = deepcopy(self.bn)
+        net = deepcopy(net)
         cpt = deepcopy(self.bn.get_all_cpts())
 
         for node in E:
@@ -156,5 +157,4 @@ class BNReasoner:
                 net.structure.remove_edges_from([(node, child)])
 
         # TODO UPDATE CPT
-
         return net, cpt

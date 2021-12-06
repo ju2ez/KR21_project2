@@ -33,9 +33,9 @@ def test_min_degree_heuristic():
     """
     Test the min degree heuristic
     """
-    X = ['hear-bark', 'dog-out', 'bowel-problem']
+    X_1 = ['hear-bark', 'dog-out', 'bowel-problem']
     X_2 = ['dog-out', 'bowel-problem', 'hear-bark']
-    assert reasoner.min_degree_heuristic(X) == ['hear-bark', 'bowel-problem', 'dog-out']
+    assert reasoner.min_degree_heuristic(X_1) == ['hear-bark', 'bowel-problem', 'dog-out']
     assert reasoner.min_degree_heuristic(X_2) == ['hear-bark', 'bowel-problem', 'dog-out']
 
 
@@ -60,7 +60,8 @@ def test_node_pruning():
     Q = ['light-on', 'family-out']
     E = ['bowel-problem']
     exp_net = ['bowel-problem', 'family-out', 'dog-out', 'light-on']
-    assert sorted(exp_net) == sorted(reasoner._node_pruning(Q, E))
+    pruned_net = reasoner._node_pruning(reasoner.bn, Q, E)
+    assert sorted(exp_net) == sorted(list(pruned_net.get_all_variables()))
 
 
 def test_edge_pruning():
@@ -70,5 +71,5 @@ def test_edge_pruning():
     Q = ['light-on', 'family-out']
     E = ['bowel-problem']
     assert len(reasoner.bn.get_children('bowel-problem')) > 0
-    pruned_net = reasoner._edge_pruning(Q, E)
+    pruned_net, cpt = reasoner._edge_pruning(reasoner.bn, Q, E)
     assert len(pruned_net.get_children('bowel-problem')) == 0
