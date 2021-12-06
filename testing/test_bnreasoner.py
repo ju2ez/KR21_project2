@@ -12,18 +12,16 @@ reasoner = BNReasoner.BNReasoner(bayes_net)
 # nx.draw(bayes_net.get_interaction_graph(), with_labels=True)
 
 def test_d_separation():
-    # direct causal chain
+    # direct causal connection
     assert reasoner.check_d_separation('bowel-problem', 'dog-out', ['family-out']) is False
     assert reasoner.check_d_separation('bowel-problem', 'dog-out', ['dog-out']) is True
     # causal chain
     assert reasoner.check_d_separation('bowel-problem', 'hear-bark', ['family-out']) is False
     assert reasoner.check_d_separation('bowel-problem', 'hear-bark', ['dog-out']) is True
-
     # common cause
     assert reasoner.check_d_separation('light-on', 'dog-out', []) is False
     assert reasoner.check_d_separation('light-on', 'dog-out', ['hear-bark']) is False
     assert reasoner.check_d_separation('light-on', 'dog-out', ['family-out']) is True
-
     # common effect
     assert reasoner.check_d_separation('bowel-problem', 'family-out', []) is True
     assert reasoner.check_d_separation('bowel-problem', 'family-out', ['hear-bark']) is False
@@ -72,4 +70,18 @@ def test_edge_pruning():
     E = ['bowel-problem']
     assert len(reasoner.bn.get_children('bowel-problem')) > 0
     pruned_net, cpt = reasoner._edge_pruning(reasoner.bn, Q, E)
+    assert len(pruned_net.get_children('bowel-problem')) == 0
+    # TODO check CPT
+
+
+def test_network_pruning():
+    """
+    Test the composite pruning function
+    """
+    #TODO
+    Q = ['light-on', 'family-out']
+    E = ['bowel-problem']
+    exp_net = ['bowel-problem', 'family-out', 'dog-out', 'light-on']
+    pruned_net, updated_cpt = reasoner.prune_network(reasoner.bn, Q, E)
+    assert sorted(exp_net) == sorted(list(pruned_net.get_all_variables()))
     assert len(pruned_net.get_children('bowel-problem')) == 0

@@ -18,7 +18,6 @@ class BNReasoner:
         else:
             self.bn = net
 
-    # TODO: This is where your methods should go
     def check_d_separation(self, X: str, Y: str, Z: list):
         """
         Are X and Y d-seperated given Z?
@@ -119,9 +118,10 @@ class BNReasoner:
             ordered_vars.append(k)
         return ordered_vars
 
-    def prune_network(self, Q, E):
-        node_pruned_network = self._node_pruning(self.bn, Q, E)
+    def prune_network(self, net, Q, E):
+        node_pruned_network = self._node_pruning(net, Q, E)
         edge_pruned_network, updated_cpt = self._edge_pruning(node_pruned_network, Q, E)
+        return edge_pruned_network, updated_cpt
 
     def _node_pruning(self, net, Q: list, E: list):
         """
@@ -144,7 +144,7 @@ class BNReasoner:
 
     def _edge_pruning(self, net, Q: list, E: list):
         """
-        Given a list of evidence Q, perform edge pruning
+        Given a list of evidence E, perform edge pruning
         :param Q: query, E: evidence
         :return:
         """
