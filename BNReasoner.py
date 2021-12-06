@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Union
 from BayesNet import BayesNet
 import networkx as nx
@@ -117,3 +118,24 @@ class BNReasoner:
         for k in sorted(num_edges, key=num_edges.get, reverse=False):
             ordered_vars.append(k)
         return ordered_vars
+
+    def prune_network(self, Q):
+        node_pruned_network = self._node_pruning(Q)
+
+
+    def _node_pruning(self, Q: list):
+        """
+        Given a list of evidence Q, perform node pruning
+        :param Q: evidence
+        :return:
+        """
+        net = deepcopy(self.bn)
+        leaf_nodes = [node for node in net.get_all_variables()
+                      if len(net.get_children(node)) == 0]
+
+        pruneable_nodes = [node for node in leaf_nodes if node not in Q]
+
+        pruned = [node for node in net.get_all_variables()
+                  if node not in pruneable_nodes]
+
+        return pruned
