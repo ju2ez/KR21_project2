@@ -31,6 +31,8 @@ class BNReasoner:
         for path_list in nx.all_shortest_paths(net.structure.to_undirected(), X, Y):
             path_length = len(path_list)
             print(path_list, path_length)
+
+            # handle the edge case for very small paths first
             if path_length < 3:
                 if path_length < 2:
                     return True
@@ -41,7 +43,6 @@ class BNReasoner:
                         return False
 
             d_separated = False
-
             for i in range(path_length - 2):
                 # check triplets
                 tr_1 = path_list[i]
@@ -64,7 +65,6 @@ class BNReasoner:
 
                 if tr_2 in net.get_children(tr_1) and tr_2 in net.get_children(tr_3):
                     # common effect
-
                     if tr_2 not in Z and not \
                             nx.descendants(net.structure, tr_2).intersection(Z):
                         # check also descendents of middle Node
@@ -119,23 +119,42 @@ class BNReasoner:
             ordered_vars.append(k)
         return ordered_vars
 
-    def prune_network(self, Q):
-        node_pruned_network = self._node_pruning(Q)
+    def prune_network(self, Q, E):
+        node_pruned_network = self._node_pruning(Q, E)
 
-
-    def _node_pruning(self, Q: list):
+    def _node_pruning(self, Q: list, E: list):
         """
         Given a list of evidence Q, perform node pruning
-        :param Q: evidence
+        :param Q: query , E: evidence
         :return:
         """
         net = deepcopy(self.bn)
+        QE = Q + E
+
         leaf_nodes = [node for node in net.get_all_variables()
                       if len(net.get_children(node)) == 0]
 
-        pruneable_nodes = [node for node in leaf_nodes if node not in Q]
+        prunable_nodes = [node for node in leaf_nodes if node not in QE]
 
         pruned = [node for node in net.get_all_variables()
-                  if node not in pruneable_nodes]
+                  if node not in prunable_nodes]
 
         return pruned
+
+    def _edge_pruning(self, Q: list, E: list):
+        """
+        Given a list of evidence Q, perform edge pruning
+        :param Q: query, E: evidence
+        :return:
+        """
+        net = deepcopy(self.bn)
+        cpt = deepcopy(self.bn.get_all_cpts())
+
+        for node in E:
+            children = net.get_children(node)
+            for child in children:
+                net.structure.remove_edges_from([(node, child)])
+
+        # TODO UPDATE CPT
+
+        return net, cpt

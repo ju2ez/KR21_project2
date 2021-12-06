@@ -57,7 +57,18 @@ def test_node_pruning():
     """
     Test node pruning
     """
-    Q = ['light-on']
+    Q = ['light-on', 'family-out']
+    E = ['bowel-problem']
     exp_net = ['bowel-problem', 'family-out', 'dog-out', 'light-on']
-    assert sorted(exp_net) == sorted(reasoner._node_pruning(Q))
+    assert sorted(exp_net) == sorted(reasoner._node_pruning(Q, E))
 
+
+def test_edge_pruning():
+    """
+    Test edge prunin
+    """
+    Q = ['light-on', 'family-out']
+    E = ['bowel-problem']
+    assert len(reasoner.bn.get_children('bowel-problem')) > 0
+    pruned_net = reasoner._edge_pruning(Q, E)
+    assert len(pruned_net.get_children('bowel-problem')) == 0
