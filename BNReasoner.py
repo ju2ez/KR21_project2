@@ -18,7 +18,13 @@ class BNReasoner:
 
     # TODO: This is where your methods should go
     def check_d_separation(self, X: str, Y: str, Z: list):
-
+        """
+        Are X and Y d-seperated given Z?
+        :param X: A start node
+        :param Y: An end node
+        :param Z: A list of given nodes
+        :return: bool
+        """
         net = self.bn
         for path_list in nx.all_shortest_paths(net.structure.to_undirected(), X, Y):
             path_length = len(path_list)
