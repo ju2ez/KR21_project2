@@ -1,6 +1,7 @@
 from typing import Union
 from BayesNet import BayesNet
 import networkx as nx
+import itertools
 
 
 class BNReasoner:
@@ -77,5 +78,42 @@ class BNReasoner:
         print('All possible paths are d-separated')
         return True
 
-    def min_degree_heuristic(self):
-        pass
+    def min_degree_heuristic(self, X: list):
+        """
+        Calculate the order in which the variables shall be eliminated.
+        In that cast: order by amount of neighbors (lowest to highest amount)
+        :param X: subset of Bayesian Network (Graph)
+        :return:
+        """
+        graph = self.bn.get_interaction_graph()
+        num_neighbours = {}
+        for node in X:
+            num_neighbours[node] = [graph.degree(node)]
+
+        ordered_vars = []
+        for k in sorted(num_neighbours, key=num_neighbours.get, reverse=False):
+            ordered_vars.append(k)
+        return ordered_vars
+
+    def min_fill_heuristic(self, X):
+        """
+        Order the list of nodes by the amount of edges that has to be added
+        between adjacent neighbours before removement
+        :param X:
+        :return:
+        """
+        graph = self.bn.get_interaction_graph()
+        num_edges = {}
+        for node in X:
+            neighbors = graph.neighbors(node)
+            combination_of_neighbors = itertools.combinations(neighbors, r=2)
+            edges_to_add = 0
+            for n_1, n_2 in combination_of_neighbors:
+                if not graph.has_edge(n_1, n_2):
+                    edges_to_add += 1
+            num_edges[node] = edges_to_add
+
+        ordered_vars = []
+        for k in sorted(num_edges, key=num_edges.get, reverse=False):
+            ordered_vars.append(k)
+        return ordered_vars
