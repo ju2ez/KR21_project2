@@ -150,11 +150,16 @@ class BNReasoner:
         """
         net = deepcopy(net)
         cpt = deepcopy(self.bn.get_all_cpts())
-
+        # remove edges for evidence nodes
         for node in E:
             children = net.get_children(node)
             for child in children:
                 net.structure.remove_edges_from([(node, child)])
 
-        # TODO UPDATE CPT
+        # update the CPT with respect to evidence 
+        for evidence in E:
+            cpt[evidence] = cpt[evidence].loc[cpt[evidence][evidence] == True]
+            for children in net.get_children(evidence):
+                cpt[children] = cpt[children].loc[cpt[children][evidence] == True]
+
         return net, cpt

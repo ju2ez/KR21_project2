@@ -73,7 +73,6 @@ def test_edge_pruning():
     assert len(pruned_net.get_children('bowel-problem')) == 0
     # TODO check CPT
 
-
 def test_network_pruning():
     """
     Test the composite pruning function
